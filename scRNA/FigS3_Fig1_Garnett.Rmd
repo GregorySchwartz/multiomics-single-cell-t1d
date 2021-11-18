@@ -1,0 +1,408 @@
+---
+title: "Garnett"
+---
+
+# do this in the terminal using "sudo R"
+```{r}
+# First install Bioconductor and Monocle
+if (!requireNamespace("BiocManager"))
+    install.packages("BiocManager")
+
+BiocManager::install()
+BiocManager::install(c("monocle"))
+
+# Next install a few more dependencies
+BiocManager::install(c('DelayedArray', 'DelayedMatrixStats', 'org.Hs.eg.db', 'org.Mm.eg.db'))
+```
+
+
+
+# install garnett "sudo R"
+```{r}
+install.packages("devtools")
+devtools::install_github("cole-trapnell-lab/garnett")
+```
+
+
+
+# load garnett
+```{r}
+library(garnett)
+```
+
+# load monocle
+```{r}
+library(monocle)
+```
+
+# install hdf5r using "sudo R"
+```{r}
+devtools::install_github("hhoeflin/hdf5r")
+```
+
+# load hdf5r
+```{r}
+library(hdf5r)
+```
+
+# install Seurat using "sudo R"
+```{r}
+install.packages('Seurat')
+```
+
+# load dplyr
+```{r}
+library(dplyr)
+```
+
+# load Seurat
+```{r}
+library(Seurat)
+```
+
+# load monocle
+```{r}
+library(monocle)
+```
+
+
+# check versions of things you loaded
+```{r}
+sessionInfo()
+```
+
+
+# extract matrix of raw counts for 
+```{r}
+MatrixForGarnett <- as.matrix(GetAssayData(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP, slot = "counts"))
+                              #[, WhichCells(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_DONOR, ident = c("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27"))])
+#https://satijalab.org/seurat/v3.0/interaction_vignette.html
+#https://github.com/satijalab/seurat/issues/2362
+
+```
+
+```{r}
+MatrixForGarnett_sparse <- Matrix(MatrixForGarnett, sparse = TRUE)
+```
+
+```{r}
+write.table(as.matrix(MatrixForGarnett_sparse), file="MatrixForGarnett_sparse.csv", quote=FALSE, sep = ",", row.names=TRUE)
+```
+
+
+```{r}
+write.table(as.matrix(MatrixForGarnett_sparse), file="MatrixForGarnett_sparse.txt", quote=FALSE, sep = "\t", row.names=TRUE)
+```
+
+
+
+# write table of gene names that are present
+```{r}
+write.table(as.data.frame(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP@assays[["RNA"]]@data@Dimnames[[1]]),
+          file="GeneNamesInGarnettMatrix.txt", quote=FALSE, sep = "\t", row.names=FALSE)
+```
+
+
+# generate featureData
+```{r}
+write.table(as.data.frame(row.names(MatrixForGarnett)),
+          file="FeatureData.txt", quote=FALSE, sep = "\t", row.names=FALSE)
+```
+
+# generate phenoData
+```{r}
+write.table(colnames(MatrixForGarnett),
+          file="PhenoData.tsv", quote=FALSE, sep = '\t', row.names=FALSE)
+```
+
+
+
+
+
+# load the data
+```{r}
+mat <- read.delim("MatrixForGarnett_sparse.txt", row.names = 1)
+pdata <- read.delim("PhenoData_Labeled_06.17.20.txt", row.names = 1)
+fdata <- read.delim("FeatureData_Correct.txt", row.names = 1)
+```
+
+
+# check data #1
+```{r}
+head(mat)
+```
+
+
+# check data #2
+```{r}
+head(pdata)
+```
+
+# check data #3
+```{r}
+head(fdata)
+```
+
+# create CellDataSet
+```{r}
+pd <- new("AnnotatedDataFrame", data = pdata)
+fd <- new("AnnotatedDataFrame", data = fdata)
+cds <- newCellDataSet(as.matrix(mat),
+    phenoData = pd, featureData = fd)
+```
+
+
+
+```{r}
+# generate size factors for normalization later
+cds <- estimateSizeFactors(cds)
+```
+
+## Load and Check Marker file ##
+
+# load required argument for a Bioconductor AnnotationDb-class package used for converting gene IDs
+```{r}
+library(org.Hs.eg.db)
+```
+
+
+# load marker file
+```{r}
+marker_file <- read.delim("MarkerFile_Pancreas_Garnett_16.txt")
+```
+
+# check if markers are good ones
+```{r}
+marker_check <- check_markers(cds, "MarkerFile_Pancreas_Garnett_16.txt",
+                              db=org.Hs.eg.db,
+                              cds_gene_id_type = "SYMBOL",
+                              marker_file_gene_id_type = "SYMBOL")
+```
+
+```{r}
+pdf('marker_check_v12.pdf')
+plot_markers(marker_check)
+dev.off()
+```
+
+# TRAIN CLASSIFIER
+```{r}
+#https://github.com/cole-trapnell-lab/monocle3/issues/272
+
+library(org.Hs.eg.db)
+set.seed(260)
+
+
+classifier_500 <-train_cell_classifier(cds = cds,
+                                         marker_file = "MarkerFile_Pancreas_Garnett_16.txt",
+                                         db=org.Hs.eg.db,
+                                         cds_gene_id_type = "SYMBOL",
+                                         num_unknown = 500,
+                                         marker_file_gene_id_type = "SYMBOL", cores = 35)
+```
+
+
+```{r}
+head(pData(cds))
+```
+
+# Viewing the classification genes when 100 cells are used for classifying
+
+```{r}
+feature_genes_500 <- get_feature_genes(classifier_500,
+                                   node = "root",
+                                   db = org.Hs.eg.db, 
+                                   convert_ids = TRUE)
+head(feature_genes_500)
+```
+
+
+
+## chose classifier that worked with 150 cells because the gene list seemed most specific
+
+## classify cells!
+
+```{r}
+library(org.Hs.eg.db)
+cds_500 <- classify_cells(cds, classifier_500,
+                           db = org.Hs.eg.db,
+                           cluster_extend = TRUE,
+                           cds_gene_id_type = "SYMBOL")
+```
+
+
+```{r}
+head(pData(cds_500))
+```
+
+# write a table
+```{r}
+write.table(as.data.frame(pData(cds_500)),
+          file="Barcodes_GarnettLabels_cds_500_6.24.20.txt", quote=FALSE, sep = "\t", row.names=TRUE)
+```
+
+# read in the Garnett labels
+```{r}
+cell_type <- read.delim("cell_type_06.24.20.txt", row.names = 1)
+```
+
+
+# read in the Garnett labels
+```{r}
+cluster_ext_type <- read.delim("ext_cell_type_06.24.20.txt", row.names = 1)
+```
+
+
+
+```{r}
+table(pData(cds_500)$cell_type)
+```
+
+```{r}
+table(pData(cds_500)$cluster_ext_type)
+```
+
+# install UMAP
+```{r}
+library(reticulate)
+use_condaenv(condaenv="Renv", conda="/mnt/data0/apps/anaconda/Anaconda2-5.2/bin/conda")
+library(Seurat)
+```
+
+
+```{r}
+reticulate::py_install(packages = 'umap-learn')
+```
+
+```{r}
+All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP$cell_type <- cell_type
+```
+
+
+```{r}
+All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP$cluster_ext_type <- cluster_ext_type
+```
+
+
+```{r}
+All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_umap <- RunUMAP(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP, dims = 1:26)
+```
+
+```{r}
+cell_type.info <- data.frame(cell_type = cell_type, row.names= colnames(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_umap))
+```
+
+```{r}
+All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_umap <- AddMetaData(object = All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_umap, metadata = cell_type.info)
+```
+
+
+```{r}
+pdf('GarnetLabels_UMAP_cell_type_final_06.24.20.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_umap, group.by = "cell_type", reduction = "umap", label = FALSE, cols= c("#e30800", "#f56505", "#dec400", "#006630", "#0223c7","#5b02c7", "#00b0e6", "#c40080", "#02f00a", "#7d3301", "#000000"))
+dev.off()
+```
+
+
+```{r}
+cluster_ext_type.info <- data.frame(cluster_ext_type = cluster_ext_type, row.names= colnames(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_umap))
+```
+
+```{r}
+All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_umap <- AddMetaData(object = All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_umap, metadata = cluster_ext_type.info)
+```
+
+
+```{r}
+pdf('GarnetLabels_UMAP_ext_cell_type_final_06.24.20.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_umap, group.by = "cluster_ext_type", reduction = "umap", label = FALSE, cols= c("#e30800", "#f56505", "#dec400", "#006630", "#0223c7","#5b02c7", "#00b0e6", "#c40080", "#02f00a", "#7d3301", "#000000"))
+dev.off()
+```
+
+
+###### didn't do the below ######
+
+
+```{r}
+pdf('GarnetLabels_UMAP_cluster_ext_type_ALPHA_750.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_DONOR_umap, group.by = "cluster_ext_type", reduction = "umap", label = FALSE, cols= c("#000000", "#fac720", "#000000", "#000000", "#000000","#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000")) 
+dev.off()
+```
+
+```{r}
+pdf('GarnetLabels_UMAP_cluster_ext_type_BETA_750.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_DONOR_umap, group.by = "cluster_ext_type", reduction = "umap", label = FALSE, cols= c("#000000", "#000000", "#fac720", "#000000", "#000000","#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000")) 
+dev.off()
+```
+
+```{r}
+pdf('GarnetLabels_UMAP_cluster_ext_type_DELTA_750.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_DONOR_umap, group.by = "cluster_ext_type", reduction = "umap", label = FALSE, cols= c("#000000", "#000000", "#000000", "#fac720", "#000000","#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000")) 
+dev.off()
+```
+
+```{r}
+pdf('GarnetLabels_UMAP_cluster_ext_type_DUCTAL_750.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_DONOR_umap, group.by = "cluster_ext_type", reduction = "umap", label = FALSE, cols= c("#000000", "#000000", "#000000", "#000000", "#fac720","#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000")) 
+dev.off()
+```
+
+
+```{r}
+pdf('GarnetLabels_UMAP_cluster_ext_type_ENDOTHELIAL_750.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_DONOR_umap, group.by = "cluster_ext_type", reduction = "umap", label = FALSE, cols= c("#000000", "#000000", "#000000", "#000000", "#000000","#fac720", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000")) 
+dev.off()
+```
+
+
+```{r}
+pdf('GarnetLabels_UMAP_cluster_ext_type_EPSILON_750.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_DONOR_umap, group.by = "cluster_ext_type", reduction = "umap", label = FALSE, cols= c("#000000", "#000000", "#000000", "#000000", "#000000","#000000", "#fac720", "#000000", "#000000", "#000000", "#000000", "#000000")) 
+dev.off()
+```
+
+
+```{r}
+pdf('GarnetLabels_UMAP_cluster_ext_type_IMMUNE_750.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_DONOR_umap, group.by = "cluster_ext_type", reduction = "umap", label = FALSE, cols= c("#000000", "#000000", "#000000", "#000000", "#000000","#000000", "#000000", "#fac720", "#000000", "#000000", "#000000", "#000000")) 
+dev.off()
+```
+
+
+```{r}
+pdf('GarnetLabels_UMAP_cluster_ext_type_MACRO_MONO_750.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_DONOR_umap, group.by = "cluster_ext_type", reduction = "umap", label = FALSE, cols= c("#000000", "#000000", "#000000", "#000000", "#000000","#000000", "#000000", "#000000", "#fac720", "#000000", "#000000", "#000000")) 
+dev.off()
+```
+
+
+```{r}
+pdf('GarnetLabels_UMAP_cluster_ext_type_PP_Gamma_750.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_DONOR_umap, group.by = "cluster_ext_type", reduction = "umap", label = FALSE, cols= c("#000000", "#000000", "#000000", "#000000", "#000000","#000000", "#000000", "#000000", "#000000", "#fac720", "#000000", "#000000")) 
+dev.off()
+```
+
+
+```{r}
+pdf('GarnetLabels_UMAP_cluster_ext_type_Stellates_750.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_DONOR_umap, group.by = "cluster_ext_type", reduction = "umap", label = FALSE, cols= c("#000000", "#000000", "#000000", "#000000", "#000000","#000000", "#000000", "#000000", "#000000", "#000000", "#fac720", "#000000")) 
+dev.off()
+```
+
+
+
+```{r}
+pdf('GarnetLabels_UMAP_cluster_ext_type_Unknown_750.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_DONOR_umap, group.by = "cluster_ext_type", reduction = "umap", label = FALSE, cols= c("#000000", "#000000", "#000000", "#000000", "#000000","#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#fac720")) 
+dev.off()
+```
+
+
+
+
+
+```{r}
+pdf('GarnetLabels_UMAP_cluster_ext_type_ACINAR_750.pdf')
+DimPlot(All_Islet_DoubletRemoved_Norm_VariableGenes_Scaled_PCA_Jack_Cluster_UMAP_GROUP_DONOR_umap, group.by = "cluster_ext_type", reduction = "umap", label = FALSE, cols= c("#fac720", "#000000", "#000000", "#000000", "#000000","#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000")) 
+dev.off()
+```
