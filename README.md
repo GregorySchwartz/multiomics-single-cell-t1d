@@ -14,4 +14,4 @@ Here, `LABELPATH` are the labels for each barcode in a file (see `too-many-cells
 ### Creating IMC trees
 `stack Fig_5AF_all_IMC_CyTOF_trees_analyze_norm.hs`, (installing `stack`: https://docs.haskellstack.org/en/stable/README/) will generate trees used in the paper. On line `60`, replacing any part of the tuple will cahnge the arguments to `too-many-cells` called. In order, the tuple specifies (see `too-many-cells` documentation): (tree cutting number, a name for the analysis, a path for the input scRNA-seq matrices, a whitelist of included cells, the normalization used to process the data, how many dimensions to drop with LSA, whether to specify a specific node to set as a new root, the labels file containing labels per cell barcode).
 
-Test
+
