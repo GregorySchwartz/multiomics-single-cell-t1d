@@ -13,7 +13,7 @@ In addition to DoubletFinder (described above), Scrublet v0.2.1 was also used to
 ## Cell Classification 
 Garnett was used for cell classification. Please refer to FigS3_Fig1_Garnett.Rmd for relevant code to be run in R. The cell type marker file used in conjunction with the code is found in supplemental materials associated with the paper.
 
-### Label transfer
+## Label transfer
 The label transfer script is a small command line program to use Seurat's label transfer on single-cell data. Usage is:
 
 `Rscript Fig_S4BCEF_label_transfer.R LABELPATH OUTPUTPATH LOGNORMFLAG FILTERANCHORS INPUT REFINPUTS`
@@ -26,6 +26,6 @@ Here, `LABELPATH` are the labels for each barcode in a file (see `too-many-cells
 ## Differential Gene Expression
 Differential genes were found using edgeR through TooManyCells with the –normalization “NoneNorm” to invoke edgeR single cell preprocessing, including normalization and filtering. 
 
-Here’s an example of the code: 
+### Here’s an example of the code: 
 too-many-cells differential --prior "" --matrix-path "TotalMed Normalized Matrix" --labels-file "" --normalization "NoneNorm" --nodes "(,)" --labels "([\""], [\""])" -t 1000000 +RTS -N35 
 
