@@ -13,7 +13,7 @@ In addition to DoubletFinder (described above), Scrublet v0.2.1 was also used to
 ### Cell Classification 
 Garnett was used for cell classification. Please refer to FigS3_Fig1_Garnett.Rmd for relevant code to be run in R. The cell type marker file used in conjunction with the code is found in supplemental materials associated with the paper.
 
-## Label transfer
+### Label transfer
 The label transfer script is a small command line program to use Seurat's label transfer on single-cell data. Usage is:
 
 `Rscript Fig_S4BCEF_label_transfer.R LABELPATH OUTPUTPATH LOGNORMFLAG FILTERANCHORS INPUT REFINPUTS`
