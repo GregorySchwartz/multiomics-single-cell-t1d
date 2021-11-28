@@ -40,3 +40,6 @@ Pseudobulk of samples were aggregated using muscat. Correlation analysis of each
 
 ### Assessment of common genetic variants associated with T1D using CELLEX and CELLECT
 The different expression specificity metrics were calculated using CELLEX tool. The output of CELLEX and GWAS traits were given as input to CELLECT which ranked association of cell types and various disease studies based on p-value. Please refer to cellex_prior_plot_Fig_S8D.R to generate the plot in R.
+
+### Comparing average expression of top 3 differentially expressed genes.
+Compare average expression of top 3 DEGs across all cell types in T1D vs. Control, T1D vs. AAB, and AAB vs. Control. Please refer to top3_geneex.R for relevant code to be run in R.
