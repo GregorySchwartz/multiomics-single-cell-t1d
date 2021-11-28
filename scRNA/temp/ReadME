@@ -1,1 +1,10 @@
-New DE analysis (DE analysis with Random effects)
+### New DE analysis (DE analysis with Random effects) 
+
+## For Libra 
+For running Libra method (Libra_DE.R)
+Please refer to error log file (Libra_DE_error_log.txt)
+
+
+## For MAST 
+For running Libra method (MAST_DE.R)
+Please refer to error log file (MAST_DE_error_log.txt)
