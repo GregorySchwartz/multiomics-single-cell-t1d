@@ -29,3 +29,13 @@ Differential genes were found using edgeR through TooManyCells with the `-–nor
 #### Code: 
 `too-many-cells differential --prior "" --matrix-path "TotalMed Normalized Matrix" --labels-file "" --normalization "NoneNorm" --nodes "(,)" --labels "([\"\"], [\"\"])" -t 1000000 +RTS -N35`
 
+### Pseudobulk Differential Gene Expression Analysis
+Differential genes were found using edgeR through muscat. Please refer to DE_PseudoBulk_analysis_edgeR_Table11_12_13.R for relevant code to be run in R.   
+
+### Correlation analysis for measuring GAD levels
+Pseudobulk of samples were aggregated using muscat. Correlation analysis of each individual gene with GAD levels were calculated. A p-value of less than 0.05 and correlation greater than 0.99 was used to filter. Please refer to Correlation_PseudoBulk_AAB_Fig3A_3B.R for the relevant code to be run in R.
+
+### Assessment of common genetic variants associated with T1D using CELLEX and CELLECT
+The different expression specificity metrics were calculated using CELLEX tool. The output of CELLEX and GWAS traits were given as input to CELLECT which ranked association of cell types and various disease studies based on p-value. Please refer to cellex_prior_plot_Fig_S8D.R to generate the plot in R.
+
+
