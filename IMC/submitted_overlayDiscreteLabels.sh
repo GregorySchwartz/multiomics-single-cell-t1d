@@ -10,7 +10,7 @@ too-many-cells make-tree \
 #--draw-node-number \
 #--labels-file /mnt/data2/aanchal/data/IMC_T1D/labels_ssc/trte_labels_ssc_ELM_withImmuneCelltypes_withNegMarkers_d-adaptive2_HPAP026Control_9_only_isletsNDuctalAcinarImmune.csv \
 
-# coor by Disease State
+# color by Disease State
 too-many-cells make-tree \
 --prior output_gw/output_hpap_imc_5_cut \
 --labels-file /mnt/data2/aanchal/data/IMC_T1D/raw_data/item_Status_HPAP026shifted2control.csv \
