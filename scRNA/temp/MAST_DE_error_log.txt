@@ -1,0 +1,10 @@
+################ Mast error log #######################
+ Completed [---------------------------------------------------------]   0% with 0 failuresError in asMethod(object) : not a positive definite matrix
+In addition: Warning messages:
+1: In checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv,  :
+  unable to evaluate scaled gradient
+2: In checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv,  :
+  Problem with Hessian check (infinite or missing values?)
+3: In vcov.merMod(object@fitC) :
+  Computed variance-covariance matrix problem: not a positive definite matrix;
+returning NA matrix
