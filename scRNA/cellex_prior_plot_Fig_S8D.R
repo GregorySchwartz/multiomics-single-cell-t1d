@@ -1,11 +1,15 @@
 ##########################################################################
-## Setup and Run cellex and Cellect tool in linux to get the prioritization csv file.
+## Setup and Run Cellex and Cellect tool in linux to get the "prioritization csv file".
+## For complete installation instructions of CELLEX and CELLECT tools refer to below GitHub links.
 ## https://github.com/perslab/CELLEX 
 ## https://github.com/perslab/CELLECT
+## The summary statistics used for analysis are here:
+## T1D- Chiou et al.- http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST90014001-GCST90015000/GCST90014023/
+
 
 ######## For cellex - bubble plot ######## 
 library(ggpubr)
-dat <- read.csv("prioritization-08112021.csv")
+dat <- read.csv("prioritization-08112021.csv") ## Obtained after running Cellex and Cellect tool
 colnames(dat)
 names(dat)[ncol(dat)] <- "-log10(Pvalue)"
 names(dat)
