@@ -20,12 +20,7 @@ library(DESeq2)
 library(RColorBrewer)
 
 # Read in the dataset
-seurat_obj <- readRDS("data/All_Islet_Doublet_Group.rds")
-
-local <- readRDS("/mnt/data0/abhijeet/pilot/scDataLocal/local.rds")
-local@meta.data$sample_id <- seurat_obj@meta.data$group
-local@meta.data$sample_id <-gsub("\\_","",local@meta.data$sample_id)
-rm(seurat_obj)
+local <- readRDS("fasolino_et_al.rds")
 
 ## Remove samples with no GAD levels
 ## Without HPAP019 and HPAP043
