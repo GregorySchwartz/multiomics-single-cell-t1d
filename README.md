@@ -5,13 +5,13 @@ Supplementary code for paper
 Each script is named after an associated figure in the paper. While each script may be run with the appropriate interpreter (`bash` for `.sh` files, `Rscript` for `.R` files, `python` for `.py` files, `stack` for `.hs` files), input files and folders must be changed to represent the location of the raw data on the user's local system. Many of these scripts use `too-many-cells`, which can be download at https://github.com/GregorySchwartz/too-many-cells with instructions and documentation for additional features.
 
 ### scRNA-seq clustering, doublet removal, cell type classification, and doublet identification using DoubletFinder
-Seurat v3.1.5 was used for filtering, UMAP generation, and initial clustering. Please refer to the FigS1-S3_Seurat_and_DoubletFinder.Rmd for relevant code to be run in R. 
+Seurat v3.1.5 was used for filtering, UMAP generation, and initial clustering. Please refer to the `FigS1-S3_Seurat_and_DoubletFinder.Rmd` for relevant code to be run in R. 
 
 ### Doublet identification using Scrublet 
-In addition to DoubletFinder (described above), Scrublet v0.2.1 was also used to identify doublets. Please refer to FigS2A_Scrublet.py script for relevant code to be run using Python.
+In addition to DoubletFinder (described above), Scrublet v0.2.1 was also used to identify doublets. Please refer to `FigS2A_Scrublet.py` script for relevant code to be run using Python.
 
 ### Cell Classification 
-Garnett was used for cell classification. Please refer to FigS3_Fig1_Garnett.Rmd for relevant code to be run in R. The cell type marker file used in conjunction with the code is found in supplemental materials associated with the paper.
+Garnett was used for cell classification. Please refer to `FigS3_Fig1_Garnett.Rmd` for relevant code to be run in R. The cell type marker file used in conjunction with the code is found in supplemental materials associated with the paper.
 
 ### Label transfer
 The label transfer script is a small command line program to use Seurat's label transfer on single-cell data. Usage is:
@@ -28,4 +28,16 @@ Differential genes were found using edgeR through TooManyCells with the `-–nor
 
 #### Code: 
 `too-many-cells differential --prior "" --matrix-path "TotalMed Normalized Matrix" --labels-file "" --normalization "NoneNorm" --nodes "(,)" --labels "([\"\"], [\"\"])" -t 1000000 +RTS -N35`
+
+### Pseudobulk Differential Gene Expression Analysis
+Differential genes were found using edgeR through muscat. Please refer to `DE_PseudoBulk_analysis_edgeR_Table11_12_13.R` for relevant code to be run in R.   
+
+### Correlation analysis for measuring GAD levels
+Pseudobulk of samples were aggregated using muscat. Correlation analysis of each individual gene with GAD levels were calculated. A *p*-value of less than 0.05 and correlation greater than 0.99 was used to filter. Please refer to `Correlation_PseudoBulk_AAB_Fig3A_3B.R` for the relevant code to be run in `R`.
+
+### Assessment of common genetic variants associated with T1D using CELLEX and CELLECT
+The different expression specificity metrics were calculated using CELLEX tool. The output of CELLEX and GWAS traits were given as input to CELLECT which ranked association of cell types and various disease studies based on *p*-value. Please refer to `cellex_prior_plot_Fig_S8D.R ` to generate the plot in `R`.
+
+### Comparing average expression of top 3 differentially expressed genes.
+Compare average expression of top 3 DEGs across all cell types in T1D vs. Control, T1D vs. AAB, and AAB vs. Control. Please refer to `top3_geneex.R` for relevant code to be run in R.
 

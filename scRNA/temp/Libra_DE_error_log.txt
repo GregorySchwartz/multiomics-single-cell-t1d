@@ -1,0 +1,14 @@
+################ Libra Error log #####################
+Registered S3 method overwritten by 'cli':
+  method     from
+print.boxx spatstat.geom
+Warning messages:
+  1: In mclapply(X, function(...) { :
+      all scheduled cores encountered errors in user code
+    2: Problem with `mutate()` column `p_val_adj`.
+     `p_val_adj = p.adjust(p_val, method = "BH")`.
+     NAs introduced by coercion
+    3: Problem with `mutate()` column `p_val_adj`.
+     `p_val_adj = p.adjust(p_val, method = "BH")`.
+     NAs introduced by coercion
+     The warning occurred in group 1: cell_type = "alpha".
