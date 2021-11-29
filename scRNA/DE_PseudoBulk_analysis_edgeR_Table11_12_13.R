@@ -8,14 +8,9 @@ library(purrr)
 library(SingleCellExperiment)
 library(scater)
 library(sctransform)
-
-# Read in the dataset
-seurat_obj <- readRDS("data/All_Islet_Doublet_Group.rds")
-local <- readRDS("/mnt/data0/abhijeet/pilot/scDataLocal/local.rds")
-local@meta.data$sample_id <- seurat_obj@meta.data$group
-local@meta.data$sample_id <-gsub("\\_","",local@meta.data$sample_id)
-rm(seurat_obj)
 ###############################################################################################
+# Read in the dataset
+local <- readRDS("fasolino_et_al.rds")
 # Extract raw counts and metadata to create SingleCellExperiment object
 cts <- local@assays$RNA@counts 
 metadat <- local@meta.data
