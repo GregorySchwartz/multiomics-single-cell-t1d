@@ -29,3 +29,6 @@ Differential genes were found using edgeR through TooManyCells with the `-–nor
 #### Code: 
 `too-many-cells differential --prior "" --matrix-path "TotalMed Normalized Matrix" --labels-file "" --normalization "NoneNorm" --nodes "(,)" --labels "([\"\"], [\"\"])" -t 1000000 +RTS -N35`
 
+### Label file
+Please refer to LabelFile.rds.zip for cell labels
+
