@@ -30,5 +30,5 @@ Differential genes were found using edgeR through TooManyCells with the `-–nor
 `too-many-cells differential --prior "" --matrix-path "TotalMed Normalized Matrix" --labels-file "" --normalization "NoneNorm" --nodes "(,)" --labels "([\"\"], [\"\"])" -t 1000000 +RTS -N35`
 
 ### Label file
-Please refer to LabelFile.rds.zip for cell labels
+For cell labels relevant to the scRNA-seq data, please refer to the file located here: https://www.dropbox.com/s/1i065hbai0vyfue/fasolino_et_al.rds?dl=0
 
