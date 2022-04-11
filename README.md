@@ -35,6 +35,9 @@ Differential genes were found using edgeR through TooManyCells with the `-–nor
 #### Code: 
 `too-many-cells differential --prior "" --matrix-path "TotalMed Normalized Matrix" --labels-file "" --normalization "NoneNorm" --nodes "(,)" --labels "([\"\"], [\"\"])" -t 1000000 +RTS -N35`
 
+### Label file
+For cell labels relevant to the scRNA-seq data, please refer to the file located here: https://www.dropbox.com/s/1i065hbai0vyfue/fasolino_et_al.rds?dl=0
+
 ### Pseudobulk Differential Gene Expression Analysis
 Differential genes were found using edgeR through muscat. Please refer to `DE_PseudoBulk_analysis_edgeR_Table11_12_13.R` for relevant code to be run in R.   
 
@@ -46,4 +49,3 @@ The different expression specificity metrics were calculated using CELLEX tool. 
 
 ### Comparing average expression of top 3 differentially expressed genes.
 Compare average expression of top 3 DEGs across all cell types in T1D vs. Control, T1D vs. AAB, and AAB vs. Control. Please refer to `top3_geneex.R` for relevant code to be run in R.
-
